@@ -1,0 +1,16 @@
+name: 'Label Prs'
+description: 'Manage pr labels'
+inputs:
+  task:  # id of input
+    description: 'The task you want to run'
+    required: true
+outputs:
+  time: # id of output
+    description: 'The time pr was approved'
+  isApproved: # id of output
+    description: 'If the pr was approved or not '
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.task }}
