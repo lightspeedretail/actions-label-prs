@@ -1,0 +1,48 @@
+name: Label prs based on reviews
+on: [pull_request_review, pull_request_review_comment]
+
+jobs:
+  label_pr_when_approved:
+    runs-on: ubuntu-latest
+    name: A job to label prs according with approvals
+    steps:
+      - name: Label a pr when approved
+        id: approved
+        uses: lightspeedretail/actions-label-prs@v1
+        with:
+          task: 'label_pr_when_approved'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APPROVALS: "1"
+          ADD_LABEL: "approved"
+      - name: Get the approval time
+        run: echo "The time was ${{ steps.approved.outputs.time }}"
+        if: steps.approved.outputs.isApproved == 'true'
+      - name: Remove the ready for review label
+        id: remove_label_ready
+        uses: lightspeedretail/actions-label-prs@v1
+        with:
+          task: 'label_pr_remove'
+        if: steps.approved.outputs.isApproved == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REMOVE_LABEL: "ready%20for%20review"
+      - name: Remove the approved label
+        id: remove_label_approved
+        uses: lightspeedretail/actions-label-prs@v1
+        with:
+          task: 'label_pr_remove'
+        if: steps.approved.outputs.isApproved == 'false'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REMOVE_LABEL: "approved"
+      - name: Label a pr when ready for review
+        id: ready_for_reviewgst
+        uses: lightspeedretail/actions-label-prs@v1
+        with:
+          task: 'label_pr_add'
+        if: steps.approved.outputs.isApproved == 'false'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ADD_LABEL: "ready for review"
+
